@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Estado presionado -->
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="#FFB703" /> <!-- amarillo más fuerte -->
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+
+    <!-- Estado normal -->
+    <item>
+        <shape>
+            <gradient
+                android:startColor="#FFE066"
+                android:endColor="#FFD43B"
+                android:angle="270" />
+
+            <corners android:radius="18dp" />
+
+            <stroke
+                android:width="2dp"
+                android:color="#FFB703" />
+        </shape>
+    </item>
+
+</selector>

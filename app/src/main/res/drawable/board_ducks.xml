@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Fondo celeste tipo agua -->
+    <gradient
+        android:startColor="#CDEFFF"
+        android:endColor="#A7E0FF"
+        android:angle="270" />
+
+    <!-- Bordes redondeados -->
+    <corners android:radius="28dp" />
+
+    <!-- Borde suave -->
+    <stroke
+        android:width="3dp"
+        android:color="#7FD3FF" />
+
+</shape>

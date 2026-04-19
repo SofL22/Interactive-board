@@ -1,0 +1,20 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Verde neón retro -->
+    <solid android:color="#9EEB44"/>
+
+    <!-- Borde pixel oscuro -->
+    <stroke
+        android:width="4dp"
+        android:color="#0A0A0A"/>
+
+    <!-- Pixel style -->
+    <corners android:radius="0dp"/>
+
+    <padding
+        android:left="8dp"
+        android:top="8dp"
+        android:right="8dp"
+        android:bottom="8dp"/>
+</shape>

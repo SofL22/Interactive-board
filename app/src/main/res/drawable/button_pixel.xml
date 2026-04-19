@@ -1,0 +1,19 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Color base oscuro -->
+    <solid android:color="#0A0A0A"/>
+
+    <!-- Bordes tipo pixel (cuadrados) -->
+    <corners android:radius="2dp"/>
+
+    <!-- Borde neon verde -->
+    <stroke
+        android:width="2dp"
+        android:color="#39FF14"/>
+
+    <padding
+        android:left="14dp"
+        android:top="10dp"
+        android:right="14dp"
+        android:bottom="10dp"/>
+</shape>

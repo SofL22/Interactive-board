@@ -1,0 +1,23 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Degradado fuerte y llamativo -->
+    <gradient
+        android:startColor="#FF00FF"
+        android:centerColor="#FFFF00"
+        android:endColor="#00FFFF"
+        android:angle="90" />
+
+    <!-- Bordes más irregulares -->
+    <corners android:radius="30dp"/>
+
+    <!-- Borde grueso -->
+    <stroke
+        android:width="2dp"
+        android:color="#000000"/>
+
+    <padding
+        android:left="16dp"
+        android:top="10dp"
+        android:right="16dp"
+        android:bottom="10dp"/>
+</shape>

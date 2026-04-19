@@ -1,0 +1,24 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Fondo vibrante -->
+    <gradient
+        android:startColor="#FF00FF"
+        android:endColor="#00FFFF"
+        android:angle="45"/>
+
+    <!-- Borde grueso loco -->
+    <stroke
+        android:width="5dp"
+        android:color="#FFFF00"/>
+
+    <!-- Esquinas exageradas -->
+    <corners android:radius="24dp"/>
+
+    <!-- Padding -->
+    <padding
+        android:left="10dp"
+        android:top="10dp"
+        android:right="10dp"
+        android:bottom="10dp"/>
+</shape>

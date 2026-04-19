@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="dark_background">#1E1E2E</color>
+    <color name="nature_background">#DDEED5</color>
+
+    <color name="dark_button">#7C4DFF</color>
+
+
+    <color name="dark_title">#FFFFFF</color>
+
+
+    <color name="app_background">#F6F4FB</color>
+
+    <color name="title_color">#5B3E96</color>
+    <color name="subtitle_color">#7A6F92</color>
+
+    <color name="header_start">#F3E8FF</color>
+    <color name="header_end">#E9D5FF</color>
+
+    <color name="board_bg">#FFFDF8</color>
+    <color name="board_stroke">#DDD6FE</color>
+
+    <color name="button_primary_start">#A78BFA</color>
+    <color name="button_primary_end">#8B5CF6</color>
+
+    <color name="button_secondary_start">#F472B6</color>
+    <color name="button_secondary_end">#EC4899</color>
+
+    <color name="ducks_root">#E6F7FF</color>
+    <color name="ducks_title">#FFB703</color>
+
+    <color name="scary_root">#0F0A0A</color>
+    <color name="scary_title">#FF3B30</color>
+    <color name="scary_text">#F5EAEA</color>
+    <color name="scary_red_dark">#7A0C0C</color>
+    <color name="scary_red_light">#C1121F</color>
+    <color name="scary_gray">#2B1E1E</color>
+    <color name="scary_magma_1">#2A0000</color>
+    <color name="scary_magma_2">#5C0B0B</color>
+    <color name="scary_magma_3">#B31217</color>
+
+    <color name="nature_root">#EAF7E6</color>
+    <color name="nature_title">#2F6B3E</color>
+    <color name="nature_text">#1F3D26</color>
+    <color name="nature_green_1">#A8D5BA</color>
+    <color name="nature_green_2">#6FBF73</color>
+    <color name="nature_green_3">#3E8E41</color>
+    <color name="nature_stroke">#5C8D5C</color>
+
+    <color name="pastel_background">#FFF7FB</color>
+    <color name="pastel_board">#FFFDF5</color>
+    <color name="pastel_title">#9C6FA8</color>
+    <color name="pastel_text">#6D5A73</color>
+    <color name="pastel_button_text">#6D5A73</color>
+    <color name="pastel_button_bg">#F8DFF0</color>
+
+    <color name="frutiger_root">#BFE9FF</color>
+    <color name="frutiger_board">#E6F9FF</color>
+    <color name="frutiger_title">#0099CC</color>
+    <color name="frutiger_text">#003F5C</color>
+    <color name="frutiger_button">#A6F0FF</color>
+
+    <color name="retro_root">#000000</color>
+    <color name="retro_board">#121212</color>
+    <color name="retro_title">#00FF00</color>
+    <color name="retro_text">#00FF00</color>
+    <color name="retro_button">#1A1A1A</color>
+
+    <color name="crazy_root">#000000</color>
+    <color name="crazy_board">#1A0033</color>
+    <color name="crazy_blue">#2E3BFF</color>
+    <color name="crazy_yellow">#F2FF00</color>
+    <color name="crazy_pink">#FF2EC4</color>
+    <color name="crazy_purple">#7A00CC</color>
+    <color name="crazy_text">#FFFFFF</color>
+
+</resources>
