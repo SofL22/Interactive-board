@@ -17,12 +17,17 @@ import android.graphics.PorterDuff
 import android.media.MediaPlayer
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
+import android.widget.Toast
 import org.json.JSONArray
 import org.json.JSONObject
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,6 +45,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var ivDecorTop: ImageView
 
     private lateinit var btnAgregarSticker: Button
+    private lateinit var btnIdeaTema: Button
+    private val themeIdeaService = ThemeIdeaService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -55,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         ivDecorRight = findViewById(R.id.ivDecorRight)
         ivDecorTop = findViewById(R.id.ivDecorTop)
         btnAgregarSticker = findViewById(R.id.btnAgregarSticker)
+        btnIdeaTema = findViewById(R.id.btnIdeaTema)
 
         btnAgregarPostIt.setOnClickListener {
             agregarPostIt()
@@ -70,17 +78,23 @@ class MainActivity : AppCompatActivity() {
         btnAgregarSticker.setOnClickListener {
             mostrarSelectorStickers()
         }
+
+        btnIdeaTema.setOnClickListener {
+            generarPostItDesdeTema()
+        }
     }
 
     private fun aplicarEstiloBotones(background: Int, textColor: Int) {
         btnAgregarPostIt.setBackgroundResource(background)
         btnCambiarTema.setBackgroundResource(background)
         btnAgregarSticker.setBackgroundResource(background)
+        btnIdeaTema.setBackgroundResource(background)
 
 
         btnAgregarPostIt.setTextColor(getColor(textColor))
         btnCambiarTema.setTextColor(getColor(textColor))
         btnAgregarSticker.setTextColor(getColor(textColor))
+        btnIdeaTema.setTextColor(getColor(textColor))
     }
 
     private fun desactivarEdicionDeTodosLosPostIts() {
@@ -147,6 +161,7 @@ class MainActivity : AppCompatActivity() {
 
         btnAgregarPostIt.text = "🦆 Post-it"
         btnCambiarTema.text = "✨ Temas 🦆"
+        btnIdeaTema.text = "💡 Idea"
 
         aplicarEstiloBotones(
             R.drawable.button_ducks,
@@ -365,6 +380,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun agregarPostIt() {
+        crearPostItConTexto("")
+    }
+
+    private fun crearPostItConTexto(texto: String) {
         val postIt = AppCompatEditText(this)
 
         val size = 350
@@ -374,6 +393,9 @@ class MainActivity : AppCompatActivity() {
 
         postIt.layoutParams = params
         postIt.hint = "Doble toque para editar"
+        if (texto.isNotBlank()) {
+            postIt.setText(texto)
+        }
         postIt.setPadding(24, 24, 24, 24)
         postIt.setBackgroundResource(obtenerDrawablePostIt())
         postIt.elevation = 8f
@@ -397,6 +419,20 @@ class MainActivity : AppCompatActivity() {
 
         if (temaActual == BoardTheme.DUCKS) {
             reproducirSonidoPato()
+        }
+    }
+
+    private fun generarPostItDesdeTema() {
+        if (temaActual != BoardTheme.CRAZY && temaActual != BoardTheme.RETRO_PIXEL) {
+            Toast.makeText(this, "Disponible solo para CRAZY o RETRO_PIXEL", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            val contenido = withContext(Dispatchers.IO) {
+                themeIdeaService.obtenerIdea(temaActual)
+            }
+            crearPostItConTexto(contenido)
         }
     }
 
@@ -483,6 +519,7 @@ class MainActivity : AppCompatActivity() {
         btnAgregarPostIt.text = "🔥 Agregar Post-it"
         btnCambiarTema.text = "Temas"
         btnAgregarSticker.text = "Agregar Sticker"
+        btnIdeaTema.text = "💡 Idea"
         btnAgregarSticker.setTextColor(getColor(R.color.scary_text))
 
         btnAgregarPostIt.setTextColor(getColor(R.color.scary_text))
@@ -513,6 +550,7 @@ class MainActivity : AppCompatActivity() {
         btnCambiarTema.setBackgroundResource(R.drawable.button_pastel)
         btnAgregarPostIt.text = "🩷 Agregar Post-it"
         btnCambiarTema.text = "✨ Temas"
+        btnIdeaTema.text = "💡 Idea"
 
         aplicarEstiloBotones(
             R.drawable.button_pastel,
@@ -545,6 +583,7 @@ class MainActivity : AppCompatActivity() {
 
         btnAgregarPostIt.text = "🍃 Agregar Post-it"
         btnCambiarTema.text = "🌱 Temas"
+        btnIdeaTema.text = "💡 Idea"
 
         aplicarEstiloBotones(
             R.drawable.button_nature,
@@ -570,6 +609,7 @@ class MainActivity : AppCompatActivity() {
         btnAgregarPostIt.text = "💎 Post-it"
         btnCambiarTema.text = " Temas"
         btnAgregarSticker.text = "Agregar Sticker"
+        btnIdeaTema.text = "💡 Idea"
         btnAgregarSticker.setTextColor(getColor(R.color.scary_text))
         btnAgregarPostIt.setTextColor(getColor(android.R.color.black))
         btnAgregarPostIt.setBackgroundColor(getColor(R.color.frutiger_button))
@@ -598,6 +638,7 @@ class MainActivity : AppCompatActivity() {
         btnAgregarPostIt.text = "👾 Post-it"
         btnCambiarTema.text = "🕹 Temas"
         btnAgregarSticker.text = "Agregar Sticker"
+        btnIdeaTema.text = "💡 Idea"
         btnAgregarPostIt.backgroundTintMode = PorterDuff.Mode.SRC_ATOP
 
         aplicarEstiloBotones(
@@ -635,6 +676,7 @@ class MainActivity : AppCompatActivity() {
 
         btnAgregarPostIt.text = "⚡ Post-it"
         btnCambiarTema.text = "🎲 Temas"
+        btnIdeaTema.text = "💡 Idea"
 
         btnAgregarPostIt.setBackgroundColor(getColor(R.color.crazy_pink))
         btnCambiarTema.setBackgroundColor(getColor(R.color.crazy_blue))
