@@ -1,6 +1,7 @@
 package una.ac.cr.lab2
 
 
+import android.Manifest
 import android.os.Bundle
 import android.widget.Button
 import android.widget.FrameLayout
@@ -13,6 +14,8 @@ import android.view.View
 import android.view.GestureDetector
 import androidx.appcompat.widget.AppCompatEditText
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.graphics.PorterDuff
 import android.media.MediaPlayer
 import android.view.inputmethod.InputMethodManager
@@ -22,6 +25,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.LinearLayout
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.lifecycle.lifecycleScope
@@ -32,9 +37,11 @@ import kotlinx.coroutines.withContext
 class MainActivity : AppCompatActivity() {
 
     private lateinit var boardContainer: FrameLayout
+    private lateinit var headerContainer: LinearLayout
     private lateinit var btnAgregarPostIt: Button
     private lateinit var btnCambiarTema: Button
     private lateinit var tvTitulo: TextView
+    private lateinit var tvNetworkStatus: TextView
     private var offset = 50
     private var temaActual = BoardTheme.DUCKS
     private val prefsName = "pizarra_prefs"
@@ -48,13 +55,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnIdeaTema: Button
     private val themeIdeaService = ThemeIdeaService()
 
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        headerContainer = findViewById(R.id.headerContainer)
         rootLayout = findViewById(R.id.rootLayout)
         tvTitulo = findViewById(R.id.tvTitulo)
+        tvNetworkStatus = findViewById(R.id.tvNetworkStatus)
         boardContainer = findViewById(R.id.boardContainer)
         btnAgregarPostIt = findViewById(R.id.btnAgregarPostIt)
         btnCambiarTema = findViewById(R.id.btnCambiarTema)
@@ -74,7 +84,7 @@ class MainActivity : AppCompatActivity() {
         temaActual = cargarTemaGuardado()
         aplicarTema(temaActual)
         cargarPostIts()
-
+        actualizarEstadoRed()
         btnAgregarSticker.setOnClickListener {
             mostrarSelectorStickers()
         }
@@ -85,6 +95,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun aplicarEstiloBotones(background: Int, textColor: Int) {
+        listOf(btnAgregarPostIt, btnCambiarTema, btnAgregarSticker, btnIdeaTema).forEach {
+            it.elevation = 8f
+            it.stateListAnimator = null
+        }
+
         btnAgregarPostIt.setBackgroundResource(background)
         btnCambiarTema.setBackgroundResource(background)
         btnAgregarSticker.setBackgroundResource(background)
@@ -95,6 +110,33 @@ class MainActivity : AppCompatActivity() {
         btnCambiarTema.setTextColor(getColor(textColor))
         btnAgregarSticker.setTextColor(getColor(textColor))
         btnIdeaTema.setTextColor(getColor(textColor))
+    }
+
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    private fun actualizarEstadoRed() {
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val capabilities = connectivityManager.getNetworkCapabilities(network)
+
+        val status = when {
+            capabilities == null -> "Sin conexión"
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "Conectado por Wi‑Fi"
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "Conectado por datos móviles"
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> "Conectado por Ethernet"
+            else -> "Conexión activa"
+        }
+
+        tvNetworkStatus.text = "Red: $status"
+        tvNetworkStatus.setTextColor(
+            getColor(
+                if (capabilities == null) android.R.color.holo_red_light else android.R.color.holo_green_dark
+            )
+        )
+    }
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    override fun onResume() {
+        super.onResume()
+        actualizarEstadoRed()
     }
 
     private fun desactivarEdicionDeTodosLosPostIts() {
@@ -114,7 +156,11 @@ class MainActivity : AppCompatActivity() {
     private fun cargarTemaGuardado(): BoardTheme {
         val prefs = getSharedPreferences(prefsName, MODE_PRIVATE)
         val themeName = prefs.getString("tema_actual", BoardTheme.PASTEL.name)
-        return BoardTheme.valueOf(themeName ?: BoardTheme.PASTEL.name)
+
+        return themeName
+            ?.let { savedName -> BoardTheme.entries.firstOrNull { it.name == savedName } }
+            ?: BoardTheme.PASTEL
+
     }
 
     private fun obtenerDrawablePostIt(): Int {
@@ -156,6 +202,7 @@ class MainActivity : AppCompatActivity() {
     private fun aplicarTemaDucks() {
         rootLayout.setBackgroundColor(getColor(R.color.ducks_root))
         boardContainer.setBackgroundResource(R.drawable.board_ducks)
+        headerContainer.setBackgroundResource(R.drawable.button_ducks)
         tvTitulo.text = "🦆 MagiClass 🦆"
         tvTitulo.setTextColor(getColor(R.color.ducks_title))
 
@@ -223,8 +270,10 @@ class MainActivity : AppCompatActivity() {
     private fun crearPostItRestaurado(texto: String, posX: Float, posY: Float) {
         val postIt = AppCompatEditText(this)
 
-        val size = 350
-        val params = FrameLayout.LayoutParams(size, size)
+        val params = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        )
         postIt.layoutParams = params
 
         postIt.hint = "Doble toque para editar"
@@ -232,6 +281,11 @@ class MainActivity : AppCompatActivity() {
         postIt.setPadding(24, 24, 24, 24)
         postIt.setBackgroundResource(obtenerDrawablePostIt())
         postIt.elevation = 8f
+        postIt.minWidth = 300
+        postIt.minHeight = 260
+        postIt.maxWidth = 700
+        postIt.isSingleLine = false
+        postIt.setHorizontallyScrolling(false)
 
         desactivarEdicion(postIt)
         configurarGestosPostIt(postIt)
@@ -240,6 +294,7 @@ class MainActivity : AppCompatActivity() {
         boardContainer.addView(postIt)
 
         postIt.post {
+            ajustarTamanoPostIt(postIt)
             postIt.x = posX
             postIt.y = posY
         }
@@ -250,6 +305,7 @@ class MainActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
+                ajustarTamanoPostIt(postIt)
                 guardarPostIts()
             }
         })
@@ -386,8 +442,10 @@ class MainActivity : AppCompatActivity() {
     private fun crearPostItConTexto(texto: String) {
         val postIt = AppCompatEditText(this)
 
-        val size = 350
-        val params = FrameLayout.LayoutParams(size, size)
+        val params = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        )
         params.leftMargin = offset
         params.topMargin = offset
 
@@ -398,7 +456,22 @@ class MainActivity : AppCompatActivity() {
         }
         postIt.setPadding(24, 24, 24, 24)
         postIt.setBackgroundResource(obtenerDrawablePostIt())
+        when (temaActual) {
+            BoardTheme.DARK -> {
+                postIt.setTextColor(getColor(R.color.scary_text))
+                postIt.setHintTextColor(getColor(R.color.scary_title))
+            }
+            else -> {
+                postIt.setTextColor(getColor(android.R.color.black))
+                postIt.setHintTextColor(getColor(android.R.color.darker_gray))
+            }
+        }
         postIt.elevation = 8f
+        postIt.minWidth = 300
+        postIt.minHeight = 260
+        postIt.maxWidth = 700
+        postIt.isSingleLine = false
+        postIt.setHorizontallyScrolling(false)
 
         desactivarEdicion(postIt)
         configurarGestosPostIt(postIt)
@@ -407,6 +480,7 @@ class MainActivity : AppCompatActivity() {
         boardContainer.addView(postIt)
 
         postIt.post {
+            ajustarTamanoPostIt(postIt)
             postIt.x = offset.toFloat()
             postIt.y = offset.toFloat()
             guardarPostIts()
@@ -420,13 +494,10 @@ class MainActivity : AppCompatActivity() {
         if (temaActual == BoardTheme.DUCKS) {
             reproducirSonidoPato()
         }
+        actualizarPostItsSegunTema()
     }
 
     private fun generarPostItDesdeTema() {
-        if (temaActual != BoardTheme.CRAZY && temaActual != BoardTheme.RETRO_PIXEL) {
-            Toast.makeText(this, "Disponible solo para CRAZY o RETRO_PIXEL", Toast.LENGTH_SHORT).show()
-            return
-        }
 
         lifecycleScope.launch {
             val contenido = withContext(Dispatchers.IO) {
@@ -436,6 +507,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun ajustarTamanoPostIt(postIt: AppCompatEditText) {
+        postIt.post {
+            val layout = postIt.layout
+            val anchoTexto = if (layout != null && layout.lineCount > 0) {
+                (0 until layout.lineCount).maxOf { layout.getLineWidth(it).toInt() }
+            } else {
+                postIt.width
+            }
+            val anchoDeseado = anchoTexto + postIt.paddingLeft + postIt.paddingRight
+            postIt.measure(
+                View.MeasureSpec.makeMeasureSpec(postIt.maxWidth, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            val params = postIt.layoutParams
+            params.width = anchoDeseado.coerceIn(postIt.minWidth, postIt.maxWidth)
+            params.height = postIt.measuredHeight.coerceAtLeast(postIt.minHeight)
+            postIt.layoutParams = params
+        }
+    }
     private fun animarFlotacion(view: ImageView) {
         view.animate()
             .translationYBy(20f)
@@ -512,7 +602,7 @@ class MainActivity : AppCompatActivity() {
     private fun aplicarTemaDarkScary() {
         rootLayout.setBackgroundColor(getColor(R.color.scary_root))
         boardContainer.setBackgroundResource(R.drawable.board_dark_scary)
-
+        headerContainer.setBackgroundResource(R.drawable.button_scary)
         tvTitulo.text = "☠ MagiClass ☠"
         tvTitulo.setTextColor(getColor(R.color.scary_title))
 
@@ -542,6 +632,7 @@ class MainActivity : AppCompatActivity() {
     private fun aplicarTemaPastel() {
         rootLayout.setBackgroundColor(getColor(R.color.pastel_background))
         boardContainer.setBackgroundResource(R.drawable.board_pastel)
+        headerContainer.setBackgroundResource(R.drawable.button_pastel)
 
         tvTitulo.setTextColor(getColor(R.color.pastel_title))
         tvTitulo.text =  "🎀 MagiClass 🎀"
@@ -577,7 +668,7 @@ class MainActivity : AppCompatActivity() {
     private fun aplicarTemaNature() {
         rootLayout.setBackgroundColor(getColor(R.color.nature_root))
         boardContainer.setBackgroundResource(R.drawable.board_nature)
-
+        headerContainer.setBackgroundResource(R.drawable.button_nature)
         tvTitulo.text = "🌿 MagiClass 🌿"
         tvTitulo.setTextColor(getColor(R.color.nature_title))
 
@@ -602,7 +693,7 @@ class MainActivity : AppCompatActivity() {
     private fun aplicarTemaFrutiger() {
         rootLayout.setBackgroundColor(getColor(R.color.frutiger_root))
         boardContainer.setBackgroundColor(getColor(R.color.frutiger_board))
-
+        headerContainer.setBackgroundResource(R.drawable.button_frutiger)
         tvTitulo.text = " Frutiger Aero "
         tvTitulo.setTextColor(getColor(R.color.frutiger_title))
 
@@ -631,7 +722,7 @@ class MainActivity : AppCompatActivity() {
     private fun aplicarTemaRetroPixel() {
         rootLayout.setBackgroundColor(getColor(R.color.retro_root))
         boardContainer.setBackgroundColor(getColor(R.color.retro_board))
-
+        headerContainer.setBackgroundResource(R.drawable.button_pixel)
         tvTitulo.text = "🕹 Retro Pixel 🕹"
         tvTitulo.setTextColor(getColor(R.color.retro_title))
 
@@ -670,7 +761,7 @@ class MainActivity : AppCompatActivity() {
     private fun aplicarTemaCrazy() {
         rootLayout.setBackgroundColor(getColor(R.color.crazy_root))
         boardContainer.setBackgroundColor(getColor(R.color.crazy_board))
-
+        headerContainer.setBackgroundResource(R.drawable.button_crazy)
         tvTitulo.text = "💥 CRAZY MODE 💥"
         tvTitulo.setTextColor(getColor(R.color.crazy_yellow))
 
