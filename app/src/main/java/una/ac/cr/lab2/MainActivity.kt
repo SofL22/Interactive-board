@@ -497,6 +497,7 @@ class MainActivity : AppCompatActivity() {
         actualizarPostItsSegunTema()
     }
 
+//    Metodo que permite crear los post it a partir de las diferentes API
     private fun generarPostItDesdeTema() {
 
         lifecycleScope.launch {
